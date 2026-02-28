@@ -2,8 +2,105 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:viewModels="clr-namespace:ShadowONE.ViewModels"
+        xmlns:models="clr-namespace:ShadowONE.Models"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
         x:Class="ShadowONE.MainWindow"
-        Title="ShadowONE">
-    Welcome to Avalonia!
+        Title="ShadowONE - ONE File Editor"
+        MinWidth="800" MinHeight="600"
+        x:DataType="viewModels:MainWindowViewModel"
+        KeyDown="MainWindow_KeyDown">
+    
+    <Design.DataContext>
+        <viewModels:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Window.Styles>
+        <Style Selector="TextBlock.modified-file">
+            <Setter Property="Foreground" Value="Crimson"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open... (Ctrl+O)" Name="OpenMenuItem" Click="OpenFile_Click"/>
+                <MenuItem Header="_Save (Ctrl+S)" Name="SaveMenuItem" Click="SaveFile_Click"/>
+                <MenuItem Header="Save _As... (Ctrl+Shift+S)" Name="SaveAsMenuItem" Click="SaveAsFile_Click"/>
+                <Separator/>
+                <MenuItem Header="E_xit" Name="ExitMenuItem" Click="Exit_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Extract All (Ctrl+X)" Name="ExtractAllMenuItem" Click="ExtractAll_Click"/>
+            <MenuItem Header="_Add Files" Name="AddFilesMenuItem" Click="AddFiles_Click"/>
+            <MenuItem Header="_Actions">
+                <MenuItem Header="Set Archive RW Version" Name="SetArchiveRwVersionMenuItem" Click="SetArchiveRwVersion_Click"/>
+                <MenuItem Header="Set All File RW Version" Name="SetAllFileRwVersionMenuItem" Click="SetAllFileRwVersion_Click"/>
+                <MenuItem Header="Sort by Extensions" Name="SortByExtensionsMenuItem" Click="SortByExtensions_Click"/>
+            </MenuItem>
+            <MenuItem Header="_About" Name="AboutMenuItem" Click="About_Click"/>
+        </Menu>
+
+        <Border Grid.Row="1" Padding="10" BorderThickness="0,0,0,1">
+            <StackPanel Spacing="5">
+                <TextBox Name="SearchTextBox" Watermark="Search files by name..." 
+                         Text="{Binding SearchText}"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Padding="10">
+            <Grid>
+                <TextBlock x:Name="NoFileText" 
+                           Text="No .ONE file open. Open a file from the File menu or press Ctrl+O."
+                           TextWrapping="Wrap" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           FontSize="16"
+                           IsVisible="{Binding !HasFileOpen}"/>
+                
+                <ListBox x:Name="FilesListBox" 
+                          ItemsSource="{Binding FilteredFiles}"
+                          SelectionMode="Single,Toggle"
+                          IsVisible="{Binding HasFileOpen}"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                          Padding="0,0,15,0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:FileEntry">
+                            <Grid ColumnDefinitions="2*,1*">
+                                <TextBlock Grid.Column="0" 
+                                           Text="{Binding FileName}" 
+                                           VerticalAlignment="Center"
+                                           FontSize="14"
+                                           Margin="0,5,0,5"
+                                           TextTrimming="CharacterEllipsis"
+                                           Classes.modified-file="{Binding IsModified}"/>
+                                <TextBlock Grid.Column="1" 
+                                           Text="{Binding Metadata}" 
+                                           VerticalAlignment="Center"
+                                           FontSize="12"
+                                           Foreground="Gray"
+                                           TextAlignment="Right"
+                                           Margin="10,5,0,5"
+                                           TextTrimming="CharacterEllipsis"
+                                           Classes.modified-file="{Binding IsModified}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Move _Up (Shift+W)" Name="ContextMoveUpMenuItem" Click="MoveUp_Click"/>
+                            <MenuItem Header="Move _Down (Shift+S)" Name="ContextMoveDownMenuItem" Click="MoveDown_Click"/>
+                            <Separator/>
+                            <MenuItem Header="_Rename (F2)" Name="ContextRenameMenuItem" Click="Rename_Click"/>
+                            <MenuItem Header="_Extract (Ctrl+E)" Name="ContextExtractMenuItem" Click="Extract_Click"/>
+                            <MenuItem Header="_Replace (Ctrl+R)" Name="ContextReplaceMenuItem" Click="Replace_Click"/>
+                            <MenuItem Header="_Delete (Del)" Name="ContextDeleteMenuItem" Click="Delete_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Edit _RW Version" Name="ContextEditRwVersionMenuItem" Click="EditRWVersion_Click"/>
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                </ListBox>
+            </Grid>
+        </Border>
+    </Grid>
 </Window>
