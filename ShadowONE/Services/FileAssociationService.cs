@@ -47,27 +47,30 @@ namespace ShadowONE.Services
 
                 using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Classes", true))
                 {
-                    using (var oneExtKey = key.CreateSubKey(".one"))
+                    if (key != null)
                     {
-                        oneExtKey.SetValue("", "ShadowONE.File");
-                    }
-
-                    using (var progIdKey = key.CreateSubKey("ShadowONE.File"))
-                    {
-                        progIdKey.SetValue("", "ShadowONE Archive");
-                        progIdKey.SetValue("PerceivedType", "text");
-
-                        using (var iconKey = progIdKey.CreateSubKey("DefaultIcon"))
+                        using (var oneExtKey = key.CreateSubKey(".one"))
                         {
-                            var iconValue = !string.IsNullOrEmpty(iconPath) 
-                                ? $"\"{iconPath}\"" 
-                                : $"\"{exePath}\",0";
-                            iconKey.SetValue("", iconValue);
+                            oneExtKey.SetValue("", "ShadowONE.File");
                         }
 
-                        using (var commandKey = progIdKey.CreateSubKey("shell\\open\\command"))
+                        using (var progIdKey = key.CreateSubKey("ShadowONE.File"))
                         {
-                            commandKey.SetValue("", $"\"{exePath}\" \"%1\"");
+                            progIdKey.SetValue("", "ShadowONE Archive");
+                            progIdKey.SetValue("PerceivedType", "text");
+
+                            using (var iconKey = progIdKey.CreateSubKey("DefaultIcon"))
+                            {
+                                var iconValue = !string.IsNullOrEmpty(iconPath)
+                                    ? $"\"{iconPath}\""
+                                    : $"\"{exePath}\",0";
+                                iconKey.SetValue("", iconValue);
+                            }
+
+                            using (var commandKey = progIdKey.CreateSubKey("shell\\open\\command"))
+                            {
+                                commandKey.SetValue("", $"\"{exePath}\" \"%1\"");
+                            }
                         }
                     }
                 }

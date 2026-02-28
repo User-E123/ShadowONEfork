@@ -74,7 +74,7 @@ namespace ShadowONE
         {
             if (string.IsNullOrEmpty(_currentFilePath))
             {
-                Title = "ShadowONE - ONE File Editor";
+                Title = "ShadowONE - ONE File Editor v1.0";
                 return;
             }
 
@@ -567,11 +567,6 @@ namespace ShadowONE
             }
         }
 
-        private void Exit_Click(object? sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
         private void MainWindow_KeyDown(object? sender, KeyEventArgs e)
         {
             if (e.KeyModifiers == KeyModifiers.Control && e.Key == Key.O)
@@ -634,7 +629,7 @@ namespace ShadowONE
 
             var titleBlock = new TextBlock
             {
-                Text = "ShadowONE - ONE File Editor",
+                Text = "ShadowONE - ONE File Editor v1.0",
                 FontWeight = FontWeight.Bold,
                 FontSize = 16
             };

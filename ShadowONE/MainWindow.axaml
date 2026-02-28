@@ -6,7 +6,7 @@
         xmlns:models="clr-namespace:ShadowONE.Models"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
         x:Class="ShadowONE.MainWindow"
-        Title="ShadowONE - ONE File Editor"
+        Title="ShadowONE - ONE File Editor v1.0"
         MinWidth="800" MinHeight="600"
         x:DataType="viewModels:MainWindowViewModel"
         KeyDown="MainWindow_KeyDown">
@@ -27,8 +27,6 @@
                 <MenuItem Header="_Open... (Ctrl+O)" Name="OpenMenuItem" Click="OpenFile_Click"/>
                 <MenuItem Header="_Save (Ctrl+S)" Name="SaveMenuItem" Click="SaveFile_Click"/>
                 <MenuItem Header="Save _As... (Ctrl+Shift+S)" Name="SaveAsMenuItem" Click="SaveAsFile_Click"/>
-                <Separator/>
-                <MenuItem Header="E_xit" Name="ExitMenuItem" Click="Exit_Click"/>
             </MenuItem>
             <MenuItem Header="_Extract All (Ctrl+X)" Name="ExtractAllMenuItem" Click="ExtractAll_Click"/>
             <MenuItem Header="_Add Files" Name="AddFilesMenuItem" Click="AddFiles_Click"/>
