@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using ShadowONE.Models;
+using ShadowONE.Services;
 
 namespace ShadowONE
 {
@@ -22,6 +23,7 @@ namespace ShadowONE
         public RwVersionEditorWindow()
         {
             InitializeComponent();
+            WindowsTitleBarHelper.SetDarkTitleBar(this);
             _entry = null!;
             _onSave = (_, _, _, _, _) => { };
         }

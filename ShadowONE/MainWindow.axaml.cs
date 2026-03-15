@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -24,6 +25,7 @@ namespace ShadowONE
         public MainWindow()
         {
             InitializeComponent();
+            WindowsTitleBarHelper.SetDarkTitleBar(this);
             _viewModel = new MainWindowViewModel();
             _oneFileService = new OneFileService();
             DataContext = _viewModel;
@@ -80,7 +82,7 @@ namespace ShadowONE
 
             var archiveType = _oneFileService.ArchiveTypeName ?? "Unknown";
             var fileCount = _viewModel.FilteredFiles.Count;
-            Title = $"{Path.GetFileName(_currentFilePath)} | {archiveType} | RW: {_oneFileService.ArchiveRwVersion} | Files: {fileCount}";
+            Title = $"{Path.GetFileName(_currentFilePath)} | {archiveType} | {_oneFileService.ArchiveRwVersion} | Files: {fileCount}";
         }
 
         private async void OpenFile_Click(object? sender, RoutedEventArgs e)
@@ -493,6 +495,7 @@ namespace ShadowONE
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
                     CanResize = false
                 };
+                WindowsTitleBarHelper.SetDarkTitleBar(dialog);
 
                 var panel = new StackPanel { Margin = new Thickness(20), Spacing = 15 };
 
@@ -624,6 +627,7 @@ namespace ShadowONE
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 CanResize = false
             };
+            WindowsTitleBarHelper.SetDarkTitleBar(dialog);
 
             var panel = new StackPanel { Margin = new Thickness(20), Spacing = 10 };
 
@@ -682,6 +686,7 @@ namespace ShadowONE
                 Width = 600,
                 Height = 200
             };
+            WindowsTitleBarHelper.SetDarkTitleBar(dialog);
 
             var textBlock = new TextBlock { Text = message, Margin = new Thickness(20) };
             var panel = new StackPanel();
@@ -701,6 +706,7 @@ namespace ShadowONE
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 CanResize = false
             };
+            WindowsTitleBarHelper.SetDarkTitleBar(dialog);
 
             var panel = new StackPanel { Margin = new Thickness(20), Spacing = 10 };
 
