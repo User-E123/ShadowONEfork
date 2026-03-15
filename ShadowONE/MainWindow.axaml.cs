@@ -74,13 +74,13 @@ namespace ShadowONE
         {
             if (string.IsNullOrEmpty(_currentFilePath))
             {
-                Title = "ShadowONE - ONE File Editor v1.0";
+                Title = "ShadowONE v1.0.1";
                 return;
             }
 
             var archiveType = _oneFileService.ArchiveTypeName ?? "Unknown";
             var fileCount = _viewModel.FilteredFiles.Count;
-            Title = $"{Path.GetFileName(_currentFilePath)} | Type: {archiveType} | RW Version: {_oneFileService.ArchiveRwVersion} | Files: {fileCount}";
+            Title = $"{Path.GetFileName(_currentFilePath)} | {archiveType} | RW: {_oneFileService.ArchiveRwVersion} | Files: {fileCount}";
         }
 
         private async void OpenFile_Click(object? sender, RoutedEventArgs e)
@@ -629,7 +629,7 @@ namespace ShadowONE
 
             var titleBlock = new TextBlock
             {
-                Text = "ShadowONE - ONE File Editor v1.0",
+                Text = "ShadowONE - ONE File Editor v1.0.1",
                 FontWeight = FontWeight.Bold,
                 FontSize = 16
             };

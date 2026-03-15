@@ -82,7 +82,7 @@ namespace ShadowONE.Services
                     FileName = file.Name,
                     FileSize = decompressedData.Length,
                     Offset = 0,
-                    Metadata = $"Compressed: {FormatFileSize(file.CompressedData.Length)} | Decompressed: {FormatFileSize(decompressedData.Length)} | RW: {file.RwVersion}",
+                    Metadata = $"C: {FormatFileSize(file.CompressedData.Length)} | D: {FormatFileSize(decompressedData.Length)} | RW: {file.RwVersion}",
                     IsModified = _modifiedFiles.Contains(file.Name),
                     RwVersion = file.RwVersion.GetVersion(),
                     RwMajor = file.RwVersion.GetMajor(),
