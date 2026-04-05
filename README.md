@@ -2,7 +2,7 @@
 <img src="https://raw.githubusercontent.com/ShadowTheHedgehogHacking/ShadowONE/refs/heads/main/res/preview.png" align="center" />
 </div>
 
-
+This is a fork to add Github Actions Mac builds to hopefully be merged later.
 ShadowONE is a successor to the HeroesONE and HeroesONE-Reloaded ONE file editors.
 
 * AvaloniaUI
