@@ -1,0 +1,31 @@
+name: Build on macOS
+on: push
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v6
+
+      - name: Restore
+        run: dotnet restore
+        working-directory: ./ShadowONE
+
+      
+      - name: Restore
+        run: dotnet build
+        working-directory: ./ShadowONE
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.2.2
+        with:
+        name: macos-build
+        path: ./ShadowONE/bin
+        # The desired behavior if no files are found using the provided path.
+  Available Options:
+  warn: Output a warning but do not fail the action
+  error: Fail the action with an error message
+  ignore: Do not output any warnings or errors, the action does not fail
+          
+        
