@@ -76,7 +76,7 @@ namespace ShadowONE
         {
             if (string.IsNullOrEmpty(_currentFilePath))
             {
-                Title = "ShadowONE v1.0.1";
+                Title = "ShadowONE v1.0.2";
                 return;
             }
 
@@ -633,7 +633,7 @@ namespace ShadowONE
 
             var titleBlock = new TextBlock
             {
-                Text = "ShadowONE - ONE File Editor v1.0.1",
+                Text = "ShadowONE - ONE File Editor v1.0.2",
                 FontWeight = FontWeight.Bold,
                 FontSize = 16
             };

@@ -6,9 +6,9 @@
         xmlns:models="clr-namespace:ShadowONE.Models"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="700"
         x:Class="ShadowONE.MainWindow"
-        Title="ShadowONE v1.0.1"
+        Title="ShadowONE v1.0.2"
         MinWidth="100" MinHeight="100"
-        Width="450" Height="500"
+        Width="500" Height="500"
         x:DataType="viewModels:MainWindowViewModel"
         KeyDown="MainWindow_KeyDown">
     
@@ -41,7 +41,7 @@
 
         <Border Grid.Row="1" Padding="10" BorderThickness="0,0,0,1">
             <StackPanel Spacing="5">
-                <TextBox Name="SearchTextBox" Watermark="Search files by name..." 
+                <TextBox Name="SearchTextBox" PlaceholderText="Search files by name..." 
                          Text="{Binding SearchText}"/>
             </StackPanel>
         </Border>
