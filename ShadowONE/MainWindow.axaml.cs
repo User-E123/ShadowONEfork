@@ -33,6 +33,7 @@ namespace ShadowONE
             this.AddHandler(KeyDownEvent, Window_KeyDown, RoutingStrategies.Tunnel);
             
             LoadIcon();
+            UpdateWindowTitle();
         }
 
         private void LoadIcon()
@@ -76,7 +77,7 @@ namespace ShadowONE
         {
             if (string.IsNullOrEmpty(_currentFilePath))
             {
-                Title = "ShadowONE v1.0.2";
+                Title = $"ShadowONE {VersionInfo.Version}";
                 return;
             }
 
@@ -633,7 +634,7 @@ namespace ShadowONE
 
             var titleBlock = new TextBlock
             {
-                Text = "ShadowONE - ONE File Editor v1.0.2",
+                Text = $"ShadowONE - ONE File Editor {VersionInfo.Version}",
                 FontWeight = FontWeight.Bold,
                 FontSize = 16
             };
