@@ -86,12 +86,26 @@ namespace ShadowONE
             Title = $"{Path.GetFileName(_currentFilePath)} | {archiveType} | {_oneFileService.ArchiveRwVersion} | Files: {fileCount}";
         }
 
+        private async Task<IStorageFolder?> TryGetStorageFolderFromCurrentFile()
+        {
+            if (string.IsNullOrEmpty(_currentFilePath))
+                return null;
+
+            var dir = Path.GetDirectoryName(_currentFilePath);
+            if (string.IsNullOrEmpty(dir))
+                return null;
+
+            return await StorageProvider.TryGetFolderFromPathAsync(dir);
+        }
+
         private async void OpenFile_Click(object? sender, RoutedEventArgs e)
         {
+            var startFolder = await TryGetStorageFolderFromCurrentFile();
             var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Open ONE File",
                 AllowMultiple = false,
+                SuggestedStartLocation = startFolder,
                 FileTypeFilter = [new FilePickerFileType("ONE Files") { Patterns = ["*.one", "*.ONE"] }]
             });
 
@@ -126,10 +140,12 @@ namespace ShadowONE
                 return;
             }
 
+            var startFolder = await TryGetStorageFolderFromCurrentFile();
             var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title = "Save ONE File As",
                 DefaultExtension = "one",
+                SuggestedStartLocation = startFolder,
                 FileTypeChoices = [new FilePickerFileType("ONE Files") { Patterns = ["*.one"] }]
             });
 
@@ -160,10 +176,12 @@ namespace ShadowONE
                 return;
             }
 
+            var startFolder = await TryGetStorageFolderFromCurrentFile();
             var folder = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
                 Title = "Select Extract Directory",
-                AllowMultiple = false
+                AllowMultiple = false,
+                SuggestedStartLocation = startFolder
             });
 
             if (folder.Count > 0)
@@ -187,10 +205,12 @@ namespace ShadowONE
                 return;
             }
 
+            var startFolder = await TryGetStorageFolderFromCurrentFile();
             var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Add Files to Archive",
-                AllowMultiple = true
+                AllowMultiple = true,
+                SuggestedStartLocation = startFolder
             });
 
             if (files.Count > 0)
@@ -262,10 +282,12 @@ namespace ShadowONE
                 return;
             }
 
+            var startFolder = await TryGetStorageFolderFromCurrentFile();
             var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Select Replacement File",
-                AllowMultiple = false
+                AllowMultiple = false,
+                SuggestedStartLocation = startFolder
             });
 
             if (files.Count > 0)
@@ -309,9 +331,11 @@ namespace ShadowONE
                 return;
             }
 
+            var startFolder = await TryGetStorageFolderFromCurrentFile();
             var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title = "Save Extracted File",
+                SuggestedStartLocation = startFolder,
                 SuggestedFileName = selectedFile.FileName,
                 DefaultExtension = Path.GetExtension(selectedFile.FileName)
             });
