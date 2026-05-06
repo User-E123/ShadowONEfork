@@ -1,31 +1,145 @@
-name: Build on macOS
-on: push
+name: 🔨 Build and Mac
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: macos-latest
+  build-windows:
+    runs-on: windows-latest
+    name: 🪟 Windows x86_64
+
     steps:
-      - name: Checkout source code
+      - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Restore
-        run: dotnet restore
-        working-directory: ./ShadowONE
+      - name: Get Short SHA
+        id: get-short-sha
+        run: |
+          $sha = '${{ github.sha }}'
+          $short_sha = $sha.Substring(0, 7)
+          echo "short_sha=$short_sha" >> $env:GITHUB_OUTPUT
+        shell: pwsh
 
-      
-      - name: Restore
-        run: dotnet build
-        working-directory: ./ShadowONE
+      - name: Stamp version (branch)
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        run: |
+          (Get-Content ShadowONE/VersionInfo.cs) -replace 'SHADOWONE_BUILDVERSION', '${{ steps.get-short-sha.outputs.short_sha }}' | Set-Content ShadowONE/VersionInfo.cs
+        shell: pwsh
 
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.2.2
+      - name: Stamp version (tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          (Get-Content ShadowONE/VersionInfo.cs) -replace 'SHADOWONE_BUILDVERSION', '${{ github.ref_name }}' | Set-Content ShadowONE/VersionInfo.cs
+        shell: pwsh
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
         with:
-        name: macos-build
-        path: ./ShadowONE/bin
-        # The desired behavior if no files are found using the provided path.
-  Available Options:
-  warn: Output a warning but do not fail the action
-  error: Fail the action with an error message
-  ignore: Do not output any warnings or errors, the action does not fail
-          
-        
+          dotnet-version: '10.0.x'
+
+      - name: Publish
+        run: dotnet publish ShadowONE/ShadowONE.csproj -c Release -r win-x64
+
+      - name: Copy LICENSE
+        run: |
+          copy LICENSE.md ShadowONE\bin\Release\net10.0\win-x64\publish\
+        shell: powershell
+
+      - name: Remove PDBs
+        run: Remove-Item ShadowONE\bin\Release\net10.0\win-x64\publish\*.pdb
+        shell: pwsh
+
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ShadowONE-${{ steps.get-short-sha.outputs.short_sha }}-windows
+          path: ShadowONE\bin\Release\net10.0\win-x64\publish
+
+  build-linux:
+    runs-on: ubuntu-24.04
+    name: 🐧 Linux x86_64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Get Short SHA
+        id: get-short-sha
+        run: echo "short_sha=$(echo ${{ github.sha }} | cut -c 1-7)" >> $GITHUB_OUTPUT
+
+      - name: Stamp version (branch)
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        run: sed -i 's/SHADOWONE_BUILDVERSION/${{ steps.get-short-sha.outputs.short_sha }}/' ShadowONE/VersionInfo.cs
+
+      - name: Stamp version (tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: sed -i 's/SHADOWONE_BUILDVERSION/${{ github.ref_name }}/' ShadowONE/VersionInfo.cs
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish
+        run: dotnet publish ShadowONE/ShadowONE.csproj -c Release -r linux-x64
+
+      - name: Copy LICENSE
+        run: |
+          cp LICENSE.md ShadowONE/bin/Release/net10.0/linux-x64/publish/
+
+      - name: Remove debug symbols
+        run: rm -f ShadowONE/bin/Release/net10.0/linux-x64/publish/*.dbg
+
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ShadowONE-${{ steps.get-short-sha.outputs.short_sha }}-linux
+          path: ShadowONE/bin/Release/net10.0/linux-x64/publish
+
+  build-mac:
+    runs-on: ubuntu-24.04
+    name: 🍎 MacOS x86_64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Get Short SHA
+        id: get-short-sha
+        run: echo "short_sha=$(echo ${{ github.sha }} | cut -c 1-7)" >> $GITHUB_OUTPUT
+
+      - name: Stamp version (branch)
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        run: sed -i 's/SHADOWONE_BUILDVERSION/${{ steps.get-short-sha.outputs.short_sha }}/' ShadowONE/VersionInfo.cs
+
+      - name: Stamp version (tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: sed -i 's/SHADOWONE_BUILDVERSION/${{ github.ref_name }}/' ShadowONE/VersionInfo.cs
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish
+        run: dotnet publish ShadowONE/ShadowONE.csproj -c Release -r osx-arm64
+
+      - name: Copy LICENSE
+        run: |
+          cp LICENSE.md ShadowONE/bin/Release/net10.0/osx-arm64/publish/
+
+      - name: Remove debug symbols
+        run: rm -f ShadowONE/bin/Release/net10.0/osx-arm64/publish/*.dbg
+
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ShadowONE-${{ steps.get-short-sha.outputs.short_sha }}-linux
+          path: ShadowONE/bin/Release/net10.0/osx-arm64/publish
