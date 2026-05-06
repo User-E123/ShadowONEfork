@@ -21,6 +21,7 @@ namespace ShadowONE
         private readonly MainWindowViewModel _viewModel;
         private readonly OneFileService _oneFileService;
         private string? _currentFilePath;
+        private string? _lastDialogFolder;
 
         public MainWindow()
         {
@@ -33,6 +34,7 @@ namespace ShadowONE
             this.AddHandler(KeyDownEvent, Window_KeyDown, RoutingStrategies.Tunnel);
             
             LoadIcon();
+            UpdateWindowTitle();
         }
 
         private void LoadIcon()
@@ -61,6 +63,7 @@ namespace ShadowONE
             try
             {
                 _currentFilePath = filePath;
+                _lastDialogFolder = null;
                 var entries = _oneFileService.OpenFile(filePath);
                 _viewModel.LoadFiles(entries);
                 _viewModel.CurrentFilePath = filePath;
@@ -76,7 +79,7 @@ namespace ShadowONE
         {
             if (string.IsNullOrEmpty(_currentFilePath))
             {
-                Title = "ShadowONE v1.0.1";
+                Title = $"ShadowONE {VersionInfo.Version}";
                 return;
             }
 
@@ -85,18 +88,42 @@ namespace ShadowONE
             Title = $"{Path.GetFileName(_currentFilePath)} | {archiveType} | {_oneFileService.ArchiveRwVersion} | Files: {fileCount}";
         }
 
+        private async Task<IStorageFolder?> TryGetStorageFolderFromPath(string? path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return null;
+
+            var dir = Path.GetDirectoryName(path);
+            if (string.IsNullOrEmpty(dir))
+                return null;
+
+            return await StorageProvider.TryGetFolderFromPathAsync(dir);
+        }
+
+        private async Task<IStorageFolder?> GetSuggestedStartLocation()
+        {
+            if (!string.IsNullOrEmpty(_lastDialogFolder))
+                return await StorageProvider.TryGetFolderFromPathAsync(_lastDialogFolder);
+
+            return await TryGetStorageFolderFromPath(_currentFilePath);
+        }
+
         private async void OpenFile_Click(object? sender, RoutedEventArgs e)
         {
+            var startFolder = await GetSuggestedStartLocation();
             var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Open ONE File",
                 AllowMultiple = false,
+                SuggestedStartLocation = startFolder,
                 FileTypeFilter = [new FilePickerFileType("ONE Files") { Patterns = ["*.one", "*.ONE"] }]
             });
 
             if (files.Count > 0)
             {
-                OpenOneFile(files[0].Path.LocalPath);
+                var path = files[0].Path.LocalPath;
+                _lastDialogFolder = Path.GetDirectoryName(path);
+                OpenOneFile(path);
             }
         }
 
@@ -125,10 +152,12 @@ namespace ShadowONE
                 return;
             }
 
+            var startFolder = await GetSuggestedStartLocation();
             var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title = "Save ONE File As",
                 DefaultExtension = "one",
+                SuggestedStartLocation = startFolder,
                 FileTypeChoices = [new FilePickerFileType("ONE Files") { Patterns = ["*.one"] }]
             });
 
@@ -137,6 +166,7 @@ namespace ShadowONE
                 try
                 {
                     var newPath = file.Path.LocalPath;
+                    _lastDialogFolder = Path.GetDirectoryName(newPath);
                     _oneFileService.SaveChangesAs(newPath);
                     _currentFilePath = newPath;
                     var entries = _oneFileService.GetFileEntries();
@@ -159,16 +189,19 @@ namespace ShadowONE
                 return;
             }
 
+            var startFolder = await GetSuggestedStartLocation();
             var folder = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
                 Title = "Select Extract Directory",
-                AllowMultiple = false
+                AllowMultiple = false,
+                SuggestedStartLocation = startFolder
             });
 
             if (folder.Count > 0)
             {
                 try
                 {
+                    _lastDialogFolder = folder[0].Path.LocalPath;
                     _oneFileService.ExtractAllFiles(folder[0].Path.LocalPath);
                 }
                 catch (Exception ex)
@@ -186,16 +219,19 @@ namespace ShadowONE
                 return;
             }
 
+            var startFolder = await GetSuggestedStartLocation();
             var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Add Files to Archive",
-                AllowMultiple = true
+                AllowMultiple = true,
+                SuggestedStartLocation = startFolder
             });
 
             if (files.Count > 0)
             {
                 try
                 {
+                    _lastDialogFolder = Path.GetDirectoryName(files[0].Path.LocalPath);
                     foreach (var file in files)
                     {
                         _oneFileService.AddFile(file.Path.LocalPath);
@@ -261,15 +297,18 @@ namespace ShadowONE
                 return;
             }
 
+            var startFolder = await GetSuggestedStartLocation();
             var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Select Replacement File",
-                AllowMultiple = false
+                AllowMultiple = false,
+                SuggestedStartLocation = startFolder
             });
 
             if (files.Count > 0)
             {
                 var fileName = selectedFile.FileName;
+                _lastDialogFolder = Path.GetDirectoryName(files[0].Path.LocalPath);
                 try
                 {
                     _oneFileService.ReplaceFile(selectedFile, files[0].Path.LocalPath);
@@ -308,9 +347,11 @@ namespace ShadowONE
                 return;
             }
 
+            var startFolder = await GetSuggestedStartLocation();
             var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title = "Save Extracted File",
+                SuggestedStartLocation = startFolder,
                 SuggestedFileName = selectedFile.FileName,
                 DefaultExtension = Path.GetExtension(selectedFile.FileName)
             });
@@ -319,6 +360,7 @@ namespace ShadowONE
             {
                 try
                 {
+                    _lastDialogFolder = Path.GetDirectoryName(file.Path.LocalPath);
                     var data = _oneFileService.ExtractFile(selectedFile);
                     await File.WriteAllBytesAsync(file.Path.LocalPath, data);
                 }
@@ -633,7 +675,7 @@ namespace ShadowONE
 
             var titleBlock = new TextBlock
             {
-                Text = "ShadowONE - ONE File Editor v1.0.1",
+                Text = $"ShadowONE - ONE File Editor {VersionInfo.Version}",
                 FontWeight = FontWeight.Bold,
                 FontSize = 16
             };
