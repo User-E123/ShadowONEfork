@@ -141,5 +141,5 @@ jobs:
       - name: Publish Artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: ShadowONE-${{ steps.get-short-sha.outputs.short_sha }}-linux
+          name: ShadowONE-${{ steps.get-short-sha.outputs.short_sha }}-macos
           path: ShadowONE/bin/Release/net10.0/osx-arm64/publish
