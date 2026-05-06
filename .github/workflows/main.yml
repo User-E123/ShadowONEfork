@@ -104,7 +104,7 @@ jobs:
           path: ShadowONE/bin/Release/net10.0/linux-x64/publish
 
   build-mac:
-    runs-on: ubuntu-24.04
+    runs-on: macos-latest
     name: 🍎 MacOS x86_64
 
     steps:
