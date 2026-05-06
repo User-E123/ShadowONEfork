@@ -121,7 +121,7 @@ jobs:
 
       - name: Stamp version (tag)
         if: startsWith(github.ref, 'refs/tags/')
-        run: sed -i 's/SHADOWONE_BUILDVERSION/${{ github.ref_name }}/' ShadowONE/VersionInfo.cs
+        run: sed -i '' 's/SHADOWONE_BUILDVERSION/${{ github.ref_name }}/' ShadowONE/VersionInfo.cs
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
